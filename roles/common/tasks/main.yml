@@ -1,0 +1,20 @@
+##############################################################
+# CentOS initial setup
+##############################################################
+
+- name: set hostname
+  hostname: name={{ inventory_hostname }}
+
+- name: yum update
+  yum:
+    state: latest
+    name: "*"
+
+- name: install libselinux-python
+  yum:
+    state: latest
+    name: libselinux-python
+
+- name: disable selinux
+  selinux:
+    state: disabled

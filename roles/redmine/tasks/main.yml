@@ -1,0 +1,114 @@
+##############################################################
+# Redmine
+##############################################################
+- name: install requirement packages
+  yum:
+    name:
+      - "ImageMagick"
+      - "ImageMagick-devel"
+      - "openssl-devel"
+      - "readline-devel"
+      - "zlib-devel"
+      - "curl-devel"
+      - "libyaml-devel"
+      - "libffi-devel"
+      - "subversion"
+      - "@Development Tools"
+    state: latest
+
+- name: checkout from repository
+  subversion:
+    repo: "{{ redmine.repo_url }}"
+    dest: "{{ redmine.install_dir }}"
+    checkout: yes
+    update: yes
+
+- name: create plugin_assets
+  file:
+    path: "{{ redmine.install_dir }}/public/plugin_assets"
+    state: directory
+    owner: "{{ redmine.owner }}"
+    group: "{{ redmine.group }}"
+    mode: 0755
+
+- name: chmod redmine install_dir
+  file:
+    path: "{{ redmine.install_dir }}"
+    owner: "{{ redmine.owner }}"
+    group: "{{ redmine.group }}"
+    recurse: yes
+
+- name: upload config file
+  template:
+    src: "{{ item }}"
+    dest: "{{ redmine.install_dir }}/config/"
+    owner: "{{ redmine.owner }}"
+    group: "{{ redmine.group }}"
+    mode: 0644
+  with_fileglob:
+    - "{{ role_path }}/templates/*.yml"
+
+- name: upload logrotate
+  template:
+    src: redmine_log
+    dest: /etc/logrotate.d/redmine_log
+    owner: root
+    group: root
+    mode: 0644
+
+- name: upload Gemfile.local
+  copy:
+    src: "{{ role_path }}/files/Gemfile.local"
+    dest: "{{ redmine.install_dir }}/Gemfile.local"
+    owner: "{{ redmine.owner }}"
+    group: "{{ redmine.owner }}"
+    mode: 0644
+
+- name: chown apache user home
+  file:
+    path: "/usr/share/httpd"
+    state: directory
+    owner: "{{ redmine.owner }}"
+
+- name: install gems
+  shell: "sudo su - {{ redmine.owner }} -s /bin/bash -c 'cd {{ redmine.install_dir }}; bundle config build.pg --with-pg-config={{ postgres.pg_bin_path }}/pg_config ; bundle install --path vendor/bundle --without development test'"
+
+- name: rake tasks
+  shell: "sudo su - {{ redmine.owner }} -s /bin/bash -c 'cd {{ redmine.install_dir }}; bundle exec rake generate_secret_token; RAILS_ENV=production bundle exec rake db:migrate ; RAILS_ENV=production REDMINE_LANG=ja bundle exec rake redmine:load_default_data'"
+
+- name: chown apache user home
+  file:
+    path: "/usr/share/httpd"
+    state: directory
+    owner: root
+
+- name: upload config.ru
+  copy:
+    src: "{{ role_path }}/files/config.ru"
+    dest: "{{ redmine.install_dir }}/config.ru"
+    owner: "{{ redmine.owner }}"
+    group: "{{ redmine.owner }}"
+    mode: 0644
+
+- name: upload redmine.service
+  template:
+    src: redmine.service
+    dest: /etc/systemd/system/redmine.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: upload unicorn.rb
+  template:
+    src: unicorn.rb
+    dest: "{{ redmine.install_dir }}/config/unicorn.rb"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: systemctl redmine
+  systemd:
+    name: redmine
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

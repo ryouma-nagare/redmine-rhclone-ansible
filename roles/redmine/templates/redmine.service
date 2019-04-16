@@ -1,0 +1,15 @@
+[Unit]
+Description=Redmine Unicorn Server
+
+[Service]
+Environment=ROOT_DIR='{{ redmine.install_dir }}'
+Environment=RAILS_ENV=production
+SyslogIdentifier=redmine-unicorn
+PIDFile={{ redmine.install_dir }}/tmp/unicorn.pid
+
+ExecStart=/bin/su - {{ redmine.owner }} -s /bin/bash -c "cd ${ROOT_DIR} && bundle exec unicorn_rails -D -c config/unicorn.rb -E production  --path /{{ redmine.path }}"
+ExecStop=/bin/kill -QUIT $MAINPID
+ExecReload=/bin/kill -USR2 $MAINPID
+
+[Install]
+WantedBy=multi-user.target

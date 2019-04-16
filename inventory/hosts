@@ -1,0 +1,2 @@
+[redmine]
+redmine-4.0   ansible_host=your_ip ansible_ssh_user=your_name ansible_ssh_pass=your_pass ansible_sudo_pass=your_pass

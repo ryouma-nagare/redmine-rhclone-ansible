@@ -1,0 +1,20 @@
+##############################################################
+# Ruby
+##############################################################
+
+- name: erase preinstall ruby
+  yum:
+    name: "ruby*"
+    state: absent
+
+- name: install ruby
+  yum:
+    name: "{{ ruby.rpm_url }}"
+
+- name: install rdoc,bundler
+  gem:
+    name: "{{ item }}"
+    user_install: no
+  with_items:
+    - rdoc
+    - bundler

@@ -1,0 +1,10 @@
+production:
+  email_delivery:
+    delivery_method: :smtp
+    smtp_settings:
+      address: {{ redmine.mail_server.address}}
+      port: {{ redmine.mail_server.port}}
+      domain: {{ redmine.mail_server.domain}}
+
+autologin_cookie_path: Redmine::Utils.relative_url_root
+

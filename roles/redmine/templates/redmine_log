@@ -1,0 +1,8 @@
+{{ redmine.install_dir }}/log/production.log {
+    daily
+    rotate 5
+    copytruncate
+    compress
+    notifempty
+    missingok
+}

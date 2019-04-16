@@ -1,0 +1,57 @@
+##############################################################
+# PostgreSQL 11
+##############################################################
+- name: install repository
+  yum:
+    name: "{{ postgres.repo_url }}"
+
+- name: install postgresql
+  yum:
+    name:
+    - "postgresql11"
+    - "postgresql11-server"
+    - "postgresql11-devel"
+    - "python-psycopg2"
+
+- name: initdb
+  command:
+    postgresql-11-setup initdb
+  environment:
+    PATH: "{{ postgres.pg_bin_path }}:{{ ansible_env.PATH }}"
+  register:
+    result
+  failed_when: result.rc not in [0, 1]
+
+- name:  modify pg_hba.conf
+  replace:
+    path='{{ postgres.pg_hba_conf_path }}'
+    regexp='^host\s+all\s+all\s+127\.0\.0\.1\/32\s+ident$'
+    replace='host    all             all             127.0.0.1/32            md5'
+
+- name:  modify pg_hba.conf
+  replace:
+    path='{{ postgres.pg_hba_conf_path }}'
+    regexp='^host\s+all\s+all\s+::1/128\s+ident$'
+    replace='host    all             all                  ::1/128            md5'
+
+- name: systemctl postgresql-11
+  systemd:
+    name: postgresql-11
+    state: restarted
+    enabled: yes
+
+- name: create postgresql user
+  become_user: postgres
+  postgresql_user:
+    name: "{{ postgres.db_user }}"
+    password: "{{ postgres.db_pass }}"
+
+- name: create postgresql database
+  become_user: postgres
+  postgresql_db:
+    name: "{{ postgres.db_name }}"
+    owner: "{{ postgres.db_user }}"
+    encoding: 'UTF-8'
+    lc_collate: 'ja_JP.UTF-8'
+    lc_ctype: 'ja_JP.UTF-8'
+    template: 'template0'
