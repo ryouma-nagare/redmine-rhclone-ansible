@@ -1,8 +1,21 @@
 ##############################################################
 # Redmine
 ##############################################################
+- block:
+  - name: enable powertools on miracle
+    command: "dnf config-manager --enable {{ ansible_distribution_major_version }}-latest-PowerTools"
+    when: ansible_distribution == "MIRACLE"
+  - name: enable powertools on centos stream
+    command: "dnf config-manager --enable powertools"
+    when: ansible_distribution == "CentOS"
+  - name: enable powertools on rocky
+    command: "dnf config-manager --enable powertools"
+    when: ansible_distribution == "Rocky"
+  when:
+    - ansible_distribution_major_version >= "8"
+
 - name: install requirement packages
-  yum:
+  package:
     name:
       - "ImageMagick"
       - "ImageMagick-devel"
@@ -13,7 +26,6 @@
       - "libyaml-devel"
       - "libffi-devel"
       - "subversion"
-      - "@Development Tools"
     state: latest
 
 - name: checkout from repository
@@ -71,7 +83,7 @@
     owner: "{{ redmine.owner }}"
 
 - name: install gems
-  shell: "sudo su - {{ redmine.owner }} -s /bin/bash -c 'cd {{ redmine.install_dir }}; bundle config build.pg --with-pg-config={{ postgres.pg_bin_path }}/pg_config ; bundle install --path vendor/bundle --without development test'"
+  shell: "sudo su - {{ redmine.owner }} -s /bin/bash -c 'cd {{ redmine.install_dir }}; bundle config build.pg --with-pg-config={{ pg_bin_path }}/pg_config ; bundle install --path vendor/bundle --without development test'"
 
 - name: rake tasks
   shell: "sudo su - {{ redmine.owner }} -s /bin/bash -c 'cd {{ redmine.install_dir }}; bundle exec rake generate_secret_token; RAILS_ENV=production bundle exec rake db:migrate ; RAILS_ENV=production REDMINE_LANG=ja bundle exec rake redmine:load_default_data'"

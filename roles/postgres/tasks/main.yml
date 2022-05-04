@@ -1,42 +1,56 @@
 ##############################################################
-# PostgreSQL 11
+# PostgreSQL
 ##############################################################
 - name: install repository
-  yum:
-    name: "{{ postgres.repo_url }}"
+  package:
+    name: "{{ repo_url }}"
+    disable_gpg_check: yes
+
+- name: disable postgresql
+  command: "dnf -qy module disable postgresql"
+  when: ansible_distribution_major_version >= "8"
+
+- name: install epel-release
+  package:
+    name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+    disable_gpg_check: yes
+
+- name: install psycopg2 ver7
+  package:
+    name:
+      - "python-psycopg2"
+      - "centos-release-scl"
+    disable_gpg_check: yes
+  when: ansible_distribution_major_version == "7"
+
+- name: install psycopg2 ver8
+  package:
+    name:
+      - "python2-psycopg2"
+      - "python3-psycopg2"
+    disable_gpg_check: yes
+  when: ansible_distribution_major_version >= "8"
 
 - name: install postgresql
-  yum:
+  package:
     name:
-    - "postgresql11"
-    - "postgresql11-server"
-    - "postgresql11-devel"
-    - "python-psycopg2"
+      - "postgresql{{ postgres.pg_version }}"
+      - "postgresql{{ postgres.pg_version }}-server"
+      - "postgresql{{ postgres.pg_version }}-devel"
+    disable_gpg_check: yes
 
 - name: initdb
   command:
-    postgresql-11-setup initdb
+    "postgresql-{{ postgres.pg_version }}-setup initdb"
   environment:
-    PATH: "{{ postgres.pg_bin_path }}:{{ ansible_env.PATH }}"
+    PATH: "{{ pg_bin_path }}:{{ ansible_env.PATH }}"
   register:
     result
   failed_when: result.rc not in [0, 1]
 
-- name:  modify pg_hba.conf
-  replace:
-    path='{{ postgres.pg_hba_conf_path }}'
-    regexp='^host\s+all\s+all\s+127\.0\.0\.1\/32\s+ident$'
-    replace='host    all             all             127.0.0.1/32            md5'
-
-- name:  modify pg_hba.conf
-  replace:
-    path='{{ postgres.pg_hba_conf_path }}'
-    regexp='^host\s+all\s+all\s+::1/128\s+ident$'
-    replace='host    all             all                  ::1/128            md5'
-
-- name: systemctl postgresql-11
+- name: systemctl postgresql
   systemd:
-    name: postgresql-11
+    name: postgresql-{{ postgres.pg_version }}
     state: restarted
     enabled: yes
 
@@ -55,3 +69,4 @@
     lc_collate: 'ja_JP.UTF-8'
     lc_ctype: 'ja_JP.UTF-8'
     template: 'template0'
+

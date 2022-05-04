@@ -2,18 +2,27 @@
 # CentOS initial setup
 ##############################################################
 
-- name: set hostname
-  hostname: name={{ inventory_hostname }}
+#- name: set hostname
+#  hostname: name={{ inventory_hostname }}
 
-- name: yum update
-  yum:
+- name: package update
+  package:
     state: latest
     name: "*"
 
 - name: install libselinux-python
-  yum:
+  package:
+    state: latest
+    name: python3-libselinux
+  when:
+    - ansible_distribution_major_version >= "8"
+
+- name: install libselinux-python
+  package:
     state: latest
     name: libselinux-python
+  when:
+    - ansible_distribution_major_version == "7"
 
 - name: disable selinux
   selinux:

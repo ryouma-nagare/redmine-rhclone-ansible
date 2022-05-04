@@ -3,18 +3,43 @@
 ##############################################################
 
 - name: erase preinstall ruby
-  yum:
+  package:
     name: "ruby*"
     state: absent
+  failed_when: false
 
 - name: install ruby
-  yum:
+  package:
     name: "{{ ruby.rpm_url }}"
+    state: installed
+  when: 
+    - ansible_distribution_file_variety == "RedHat"  or ansible_distribution_file_variety == "CentOS"
+    - ansible_distribution_major_version == "7"
 
-- name: install rdoc,bundler
+- block:
+  - name: install rpm
+    shell: "dnf module reset ruby -y ; dnf module enable ruby:{{ ruby.ruby_version }} -y"
+  - name: install rpm
+    package:
+      name: "{{ item }}"
+      state: latest
+    with_items:
+      - "@ruby:{{ ruby.ruby_version }}/common"
+      - "ruby-devel"
+  when:
+    - ansible_distribution_file_variety == "RedHat" or ansible_distribution_file_variety == "CentOS"
+    - ansible_distribution_major_version >= "8"
+
+- name: install development tools
+  package:
+    name: "@Development Tools"
+    state: latest
+
+- name: install gem
   gem:
     name: "{{ item }}"
+    state: latest
     user_install: no
   with_items:
-    - rdoc
-    - bundler
+    - "rdoc"
+    - "bundler"

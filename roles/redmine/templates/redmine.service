@@ -9,7 +9,7 @@ SyslogIdentifier=redmine-unicorn
 PIDFile={{ redmine.install_dir }}/tmp/unicorn.pid
 
 User={{ redmine.owner }}
-ExecStart=/usr/bin/bundle exec unicorn_rails -D -c config/unicorn.rb -E production  --path /{{ redmine.path }}"
+ExecStart=/usr/bin/bundle exec unicorn_rails -D -c config/unicorn.rb -E production  --path /{{ redmine.path }}
 ExecStop=/bin/kill -QUIT $MAINPID
 ExecReload=/bin/kill -USR2 $MAINPID
 

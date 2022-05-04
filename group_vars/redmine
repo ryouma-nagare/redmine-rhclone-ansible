@@ -1,20 +1,18 @@
 ###################################
-# Parameter: PostgreSQL 11
+# Parameter: PostgreSQL
 ###################################
 postgres:
-  repo_url: https://download.postgresql.org/pub/repos/yum/11/redhat/rhel-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+  pg_version: "14"
   db_name: your_db_name
   db_user: your_db_user
   db_pass: your_db_pass
-  pg_hba_conf_path: /var/lib/pgsql/11/data/pg_hba.conf
-  pg_bin_path: /usr/pgsql-11/bin
-  pg_include_path: /usr/pgsql-11/include
 
 ###################################
 # Parameter: ruby
 ###################################
 ruby:
-  rpm_url: https://github.com/feedforce/ruby-rpm/releases/download/2.5.5/ruby-2.5.5-1.el7.centos.x86_64.rpm
+  ruby_version: "2.7"
+  rpm_url: https://github.com/feedforce/ruby-rpm/releases/download/2.7.4/ruby-2.7.4-1.el7.centos.x86_64.rpm
 
 ###################################
 # Parameter: Redmine
@@ -23,7 +21,7 @@ redmine:
   install_dir: /opt/redmine
   owner: apache
   group: apache
-  repo_url: https://svn.redmine.org/redmine/branches/4.0-stable/
+  repo_url: http://svn.redmine.org/redmine/branches/5.0-stable/
   path: redmine
   port: 8081
   mail_server:

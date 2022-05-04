@@ -2,7 +2,7 @@
 # apache2
 ##############################################################
 - name: install httpd
-  yum:
+  package:
     name:
       - "httpd"
       - "httpd-devel"
