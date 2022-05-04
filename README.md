@@ -6,7 +6,7 @@
 
 ## MW等の構成
 
-* OS：CentOS 7
+* OS：CentOS 7/RockyLinux8/MiracleLinux8
 * DB：PostgreSQL 14
 * APサーバ：unicorn
 * Webサーバ：apache2
