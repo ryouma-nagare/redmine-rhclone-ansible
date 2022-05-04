@@ -21,7 +21,7 @@ redmine:
   install_dir: /opt/redmine
   owner: apache
   group: apache
-  repo_url: http://svn.redmine.org/redmine/branches/5.0-stable/
+  repo_url: https://svn.redmine.org/redmine/branches/5.0-stable/
   path: redmine
   port: 8081
   mail_server:

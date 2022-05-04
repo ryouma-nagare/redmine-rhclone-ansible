@@ -1,17 +1,17 @@
-# redmine-centos-ansible
+# redmine-rhelclone-ansible
 
 
 ## 概要
-「最小限のインストール」でインストールした直後の CentOS 7 に Redmine4.0 をインストールするためのplaybookです。
+「最小限のインストール」でインストールした直後の CentOS 7/RockyLinux8/MiracleLinux8 に Redmine5.0 をインストールするためのplaybookです。
 
 ## MW等の構成
 
 * OS：CentOS 7
-* DB：PostgreSQL 11
+* DB：PostgreSQL 14
 * APサーバ：unicorn
 * Webサーバ：apache2
-* Ruby：feedforceから取得
-* Redmine：4.0
+* Ruby：feedforceから取得(CentOS7のみ)
+* Redmine：5.0
 
 ビルドなしでインストールできるように選んでいます。
 
@@ -41,3 +41,10 @@
 ```
 ansible-playbook -i ./inventory/hosts redmine.yml
 ```
+
+## 注意点
+CentOS7 標準のsvnクライアントはバージョンが古く証明書エラーに対応できないため、以下のいずれかの対応が必要です。
+
+- redmine.repo_url を http://～にする
+- OS標準ではない svnクライアントをインストールする
+

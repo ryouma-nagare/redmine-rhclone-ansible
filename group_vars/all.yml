@@ -1,0 +1,5 @@
+repo_url: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-{{ ansible_distribution_major_version }}-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
+pg_hba_conf_path: "/var/lib/pgsql/{{ postgres.pg_version }}/data/pg_hba.conf"
+pg_bin_path: "/usr/pgsql-{{ postgres.pg_version }}/bin"
+pg_include_path: "/usr/pgsql-{{ postgres.pg_version }}/include"
+
